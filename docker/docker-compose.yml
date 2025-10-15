@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:latest
+    container_name: luxtronic_postgres_parts
+    restart: always
+    environment:
+      POSTGRES_USER: luxtronic_user
+      POSTGRES_PASSWORD: luxtronic_password
+      POSTGRES_DB: luxtronic_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - parts_db_data:/var/lib/postgresql/data
+
+volumes:
+  parts_db_data:

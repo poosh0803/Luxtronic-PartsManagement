@@ -1,0 +1,121 @@
+/* Base dark mode overrides */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+  
+  .dark-mode .card,
+  .dark-mode .form-section,
+  .dark-mode .stat-card,
+  .dark-mode .header,
+  .dark-mode .nav-bar,
+  .dark-mode .modal-content {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border-color: #333;
+  }
+  
+  .dark-mode .card-header,
+  .dark-mode .section-header {
+    background-color: #2c2c2c;
+    color: #f5f5f5;
+  }
+  
+  .dark-mode .nav-item.active {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  .dark-mode .nav-item:hover {
+    background-color: #444;
+  }
+  
+  .dark-mode input,
+  .dark-mode select,
+  .dark-mode textarea,
+  .dark-mode .form-control {
+    background-color: #2a2a2a;
+    color: #fff;
+    border-color: #555;
+  }
+  
+  .dark-mode .form-check-label {
+    color: #ccc;
+  }
+  
+  .dark-mode .status-badge {
+    color: #fff;
+  }
+
+  /* Dark mode modal styling */
+  .dark-mode .modal-content {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+  }
+
+  .dark-mode .modal-header {
+    background-color: #b8941f;
+    color: white;
+  }
+
+  .dark-mode .modal-field .field-value {
+    background-color: #2c2c2c;
+    border-color: #444;
+    color: #e0e0e0;
+  }
+
+  .dark-mode .modal-field .field-value.price {
+    color: #d4a44c;
+  }
+
+  .dark-mode .modal-field label {
+    color: #ccc;
+  }
+
+  /* Dark mode for new basic info section */
+  .dark-mode .basic-info-section {
+    border-bottom-color: #444;
+  }
+
+  .dark-mode .info-item label {
+    color: #ccc;
+  }
+
+  .dark-mode .info-item span {
+    background-color: #2c2c2c;
+    border-color: #444;
+    color: #e0e0e0;
+  }
+
+  .dark-mode .price-display {
+    color: #d4a44c !important;
+  }
+
+  /* Dark mode for components table */
+  .dark-mode .components-table-section h3 {
+    color: #e0e0e0;
+  }
+
+  .dark-mode .modal-table th {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    border-color: #444;
+  }
+
+  .dark-mode .modal-table td {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border-color: #444;
+  }
+
+  .dark-mode .modal-table tr:nth-child(even) td {
+    background-color: #2c2c2c;
+  }
+
+  .dark-mode .modal-table tr:hover td {
+    background-color: #333;
+  }
+
+  .dark-mode .component-empty {
+    color: #666;
+  }

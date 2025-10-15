@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+      .order-items-container {
+        margin-top: 40px;
+      }
+      #order-items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      #order-items-table th, #order-items-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      #order-items-table th {
+        background-color: #f2f2f2;
+      }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo-container">
+            <div class="logo">L</div>
+            <span class="brand-name">Luxtronic</span>
+            <span class="subtitle">Parts Management</span>
+        </div>
+    </header>
+    <nav class="nav-bar">
+        <a href="/new-order" class="nav-item">
+            <i class="fas fa-plus"></i>
+            <span class="nav-text">New Order</span>
+        </a>
+        <a href="/order-history" class="nav-item active">
+            <i class="fas fa-history"></i>
+            <span class="nav-text">Order History</span>
+        </a>
+        <a href="/inventory" class="nav-item">
+            <i class="fas fa-boxes"></i>
+            <span class="nav-text">Inventory</span>
+        </a>
+        <a href="/usage" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span class="nav-text">Usage</span>
+        </a>
+    </nav>
+    <main class="main-content">
+        <h1>Order History</h1>
+
+        <div class="order-items-container">
+          <h2>Order Items</h2>
+          <table id="order-items-table">
+            <thead>
+              <tr>
+                <th>Order Item ID</th>
+                <th>Order ID</th>
+                <th>Part Name</th>
+                <th>Total Quantity</th>
+                <th>Used Quantity</th>
+                <th>Remaining Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Order items data will be populated here -->
+            </tbody>
+          </table>
+        </div>
+
+    </main>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const orderItemsTableBody = document.querySelector('#order-items-table tbody');
+
+        const fetchOrderItems = async () => {
+          try {
+            const response = await fetch('/api/order_items');
+            const orderItems = await response.json();
+
+            orderItemsTableBody.innerHTML = ''; // Clear existing rows
+
+            if (orderItems.length === 0) {
+              orderItemsTableBody.innerHTML = '<tr><td colspan="6">No order items found.</td></tr>';
+              return;
+            }
+
+            orderItems.forEach(item => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                <td>${item.id}</td>
+                <td>${item.order_id}</td>
+                <td>${item.part_name}</td>
+                <td>${item.total_quantity}</td>
+                <td>${item.used_quantity}</td>
+                <td>${item.remaining_quantity}</td>
+              `;
+              orderItemsTableBody.appendChild(row);
+            });
+          } catch (error) {
+            console.error('Error fetching order items:', error);
+            orderItemsTableBody.innerHTML = '<tr><td colspan="6">Error loading order items.</td></tr>';
+          }
+        };
+
+        // Fetch order items on page load
+        fetchOrderItems();
+      });
+    </script>
+</body>
+</html>

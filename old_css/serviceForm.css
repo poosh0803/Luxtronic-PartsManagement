@@ -1,0 +1,117 @@
+body {
+    background-color: #f7f7f7;
+}
+
+    .text-muted {
+    color: #666;
+    font-size: 14px;
+}
+    
+.form-title{
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.card-header {
+    background-color: #fff4e5;
+    font-weight: 600;
+}
+.form-section {
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+.print-btn {
+    float: right;
+    margin-top: 10px;
+}
+@media (max-width: 768px) {
+.print-btn {
+    float: none;
+    width: 45%;
+    display: block;
+    font-size: 20px;
+    padding: 16px;
+    margin-top: -20px;
+    text-align: center;
+    }
+}
+.inspection-header {
+    background-color: #f1f1f1;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: #444;
+    display: flex;
+    align-items: center;
+}
+.circle-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #666;
+    display: inline-block;
+    margin-right: 10px;
+    position: relative;
+}
+.section-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #666;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+.laptop-diagram {
+    width: 100%;
+    max-width: 500px;
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+    margin-bottom: 20px;
+}
+
+.laptop-part {
+    fill: #e0e0e0;
+    stroke: #999;
+    stroke-width: 1px;
+    cursor: pointer;
+    transition: fill 0.2s;
+}
+
+.laptop-part:hover {
+    fill: #ffc107;
+}
+
+.laptop-part.selected {
+    fill: #ff9800;
+}
+
+.damage-form {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.damage-report-list {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    min-height: 100px;
+}
+
+.damage-report-entry {
+    background-color: #f8f9fa;
+    border-left: 4px solid #ff9800;
+    padding: 10px;
+    border-radius: 0 5px 5px 0;
+}
+
+.part-name-report {
+    color: #ff9800;
+}
+
+.damage-inspection-container {
+    margin-bottom: 30px;
+}

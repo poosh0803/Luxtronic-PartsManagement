@@ -1,0 +1,219 @@
+.status-box {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    background-color: #f9f9f9;
+    margin: 0 10px;
+    flex-grow: 1;
+  }
+    
+  .record-title{
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .text-muted {
+    color: #666;
+    font-size: 14px;
+    }
+   
+  .form-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .status {
+    font-weight: bold;
+    padding: 2px 5px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    display: inline-block;
+    letter-spacing: 0.5px;
+    text-align: center;
+    width: 140px;
+  }
+  .pending { background-color: #ffe58f; color: #856404; }
+  .progress { background-color: #91d5ff; color: #0c5460; }
+  .completed { background-color: #b7eb8f; color: #155724; }
+  .waiting { background-color: #ffd6e7; color: #721c24; }
+  .cancelled {
+    background-color: #ffb3b3;
+    color: #a30000;
+  }
+  .table-actions i { cursor: pointer; margin: 0 6px; }
+
+  .status.progress {
+    width: 140px;
+    font-size: 0.8rem;
+    padding-bottom: 20px;
+    border-radius: 20px;
+    padding-left: 20px;
+    background-color: #91d5ff;
+    color: #0c5460;
+  }
+
+  div.row:nth-child(2) {
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  
+  /* Additional styles for service form */
+  body {
+    background-color: #f7f7f7;
+  }
+  .card-header {
+    background-color: #fff4e5;
+    font-weight: 600;
+  }
+  .form-section {
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+  .print-btn {
+    float: right;
+    margin-top: 10px;
+  }
+  .inspection-header {
+    background-color: #f1f1f1;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: #444;
+    display: flex;
+    align-items: center;
+  }
+  .circle-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #666;
+    display: inline-block;
+    margin-right: 10px;
+    position: relative;
+  }
+  .section-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #666;
+    text-transform: uppercase;
+    font-size: 14px;
+  }
+  
+  /* Modal specific styling */
+  #serviceFormModal .modal-dialog {
+    max-width: 90%;
+    margin: 20px auto;
+  }
+  #serviceFormModal .modal-content {
+    padding: 15px;
+  }
+
+  /* Laptop Diagram Styling */
+  .laptop-diagram {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+  }
+  
+  .laptop-part {
+    fill: #e9ecef;
+    stroke: #495057;
+    stroke-width: 1px;
+    cursor: pointer;
+    transition: fill 0.2s ease;
+  }
+  
+  .laptop-part:hover {
+    fill: #dee2e6;
+  }
+  
+  .laptop-part.selected {
+    fill: #ffc107;
+  }
+  
+  .damage-inspection-container {
+    margin-bottom: 30px;
+  }
+
+  /* Pagination Styles */
+  .pagination-info {
+    font-size: 14px;
+    color: #666;
+  }
+
+  .records-per-page {
+    display: flex;
+    align-items: center;
+  }
+
+  .records-per-page .form-label {
+    font-size: 14px;
+    color: #666;
+    white-space: nowrap;
+  }
+
+  .records-per-page .form-select {
+    min-width: 70px;
+  }
+
+  .pagination {
+    margin: 0;
+  }
+
+  .pagination .page-link {
+    color: #666;
+    border-color: #dee2e6;
+    padding: 0.375rem 0.75rem;
+    font-size: 14px;
+  }
+
+  .pagination .page-link:hover {
+    color: #495057;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+  }
+
+  .pagination .page-item.active .page-link {
+    background-color: #dda84b;
+    border-color: #dda84b;
+    color: white;
+  }
+
+  .pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+  }
+
+  .pagination .page-link:focus {
+    box-shadow: 0 0 0 0.2rem rgba(221, 168, 75, 0.25);
+  }
+
+  /* Responsive pagination */
+  @media (max-width: 768px) {
+    .d-flex.justify-content-between.align-items-center.mt-4 {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .pagination-info {
+      order: 2;
+    }
+    
+    .d-flex.align-items-center.gap-3 {
+      order: 1;
+      flex-direction: column;
+      gap: 1rem !important;
+    }
+  }
