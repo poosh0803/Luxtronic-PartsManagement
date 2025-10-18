@@ -266,6 +266,29 @@ app.post('/api/usage', async (req, res) => {
   }
 });
 
+app.get('/api/usage/history', async (req, res) => {
+  try {
+    const query = `
+      SELECT
+        u.id as usage_id,
+        u.purpose,
+        u.quantity_used,
+        u.usage_date,
+        m.name as machine_name,
+        mp.part_name
+      FROM usage u
+      JOIN machines m ON u.machine_id = m.id
+      JOIN machine_parts mp ON u.machine_part_id = mp.id
+      ORDER BY u.usage_date DESC;
+    `;
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching usage history', error.stack);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'src', 'public', 'NewOrder.html'));
 });

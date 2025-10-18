@@ -1039,7 +1039,7 @@ button[type="submit"]:hover, .action-btn:hover, #add-part-btn:hover {
 .part-row {
   display: flex;
   gap: 10px;
-  align-items: flex-end;
+  align-items: center;
   margin-bottom: 10px;
 }
 .part-details-group {
