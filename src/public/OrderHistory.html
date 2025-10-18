@@ -7,21 +7,37 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-      .order-items-container {
+      .orders-container {
         margin-top: 40px;
       }
-      #order-items-table {
+      #orders-table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 20px;
       }
-      #order-items-table th, #order-items-table td {
+      #orders-table th, #orders-table td {
         border: 1px solid #ddd;
         padding: 8px;
         text-align: left;
       }
-      #order-items-table th {
+      #orders-table th {
         background-color: #f2f2f2;
+      }
+      .parts-list {
+        list-style-type: none;
+        padding-left: 0;
+      }
+      .action-btn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .action-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
       }
     </style>
 </head>
@@ -54,21 +70,22 @@
     <main class="main-content">
         <h1>Order History</h1>
 
-        <div class="order-items-container">
-          <h2>Order Items</h2>
-          <table id="order-items-table">
+        <div class="orders-container">
+          <h2>All Orders</h2>
+          <table id="orders-table">
             <thead>
               <tr>
-                <th>Order Item ID</th>
                 <th>Order ID</th>
-                <th>Part Name</th>
-                <th>Total Quantity</th>
-                <th>Used Quantity</th>
-                <th>Remaining Quantity</th>
+                <th>Purpose</th>
+                <th>Machine</th>
+                <th>Parts</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <!-- Order items data will be populated here -->
+              <!-- Order data will be populated here -->
             </tbody>
           </table>
         </div>
@@ -77,40 +94,73 @@
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-        const orderItemsTableBody = document.querySelector('#order-items-table tbody');
+        const ordersTableBody = document.querySelector('#orders-table tbody');
 
-        const fetchOrderItems = async () => {
+        const fetchOrders = async () => {
           try {
-            const response = await fetch('/api/order_items');
-            const orderItems = await response.json();
+            const response = await fetch('/api/orders/history');
+            const orders = await response.json();
 
-            orderItemsTableBody.innerHTML = ''; // Clear existing rows
+            ordersTableBody.innerHTML = ''; // Clear existing rows
 
-            if (orderItems.length === 0) {
-              orderItemsTableBody.innerHTML = '<tr><td colspan="6">No order items found.</td></tr>';
+            if (orders.length === 0) {
+              ordersTableBody.innerHTML = '<tr><td colspan="7">No orders found.</td></tr>';
               return;
             }
 
-            orderItems.forEach(item => {
+            orders.forEach(order => {
               const row = document.createElement('tr');
+              const partsList = order.parts.map(p => `<li>${p.part_name} (x${p.quantity})</li>`).join('');
+              
               row.innerHTML = `
-                <td>${item.id}</td>
-                <td>${item.order_id}</td>
-                <td>${item.part_name}</td>
-                <td>${item.total_quantity}</td>
-                <td>${item.used_quantity}</td>
-                <td>${item.remaining_quantity}</td>
+                <td>${order.order_id}</td>
+                <td>${order.purpose}</td>
+                <td>${order.machine_name}</td>
+                <td><ul class="parts-list">${partsList}</ul></td>
+                <td>${order.status}</td>
+                <td>${new Date(order.created_at).toLocaleString()}</td>
+                <td>
+                  ${order.status !== 'delivered' ? 
+                    `<button class="action-btn" data-order-id="${order.order_id}">Mark as Delivered</button>` : 
+                    'Delivered'}
+                </td>
               `;
-              orderItemsTableBody.appendChild(row);
+              ordersTableBody.appendChild(row);
             });
           } catch (error) {
-            console.error('Error fetching order items:', error);
-            orderItemsTableBody.innerHTML = '<tr><td colspan="6">Error loading order items.</td></tr>';
+            console.error('Error fetching orders:', error);
+            ordersTableBody.innerHTML = '<tr><td colspan="7">Error loading orders.</td></tr>';
           }
         };
 
-        // Fetch order items on page load
-        fetchOrderItems();
+        ordersTableBody.addEventListener('click', async (e) => {
+          if (e.target.classList.contains('action-btn')) {
+            const orderId = e.target.dataset.orderId;
+            try {
+              const response = await fetch(`/api/orders/${orderId}/status`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: 'delivered' })
+              });
+
+              if (response.ok) {
+                // Refresh the order list to show the updated status
+                fetchOrders();
+              } else {
+                const result = await response.json();
+                alert(`Error: ${result.error}`);
+              }
+            } catch (error) {
+              console.error('Error updating order status:', error);
+              alert('An unexpected error occurred.');
+            }
+          }
+        });
+
+        // Fetch orders on page load
+        fetchOrders();
       });
     </script>
 </body>

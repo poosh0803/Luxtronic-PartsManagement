@@ -50,8 +50,16 @@
           <h2>Record Part Usage</h2>
           <form id="usage-form">
             <div class="form-group">
-              <label for="order-item-id">Order Item ID</label>
-              <input type="number" id="order-item-id" name="order_item_id" required>
+              <label for="machine-select">Select Machine</label>
+              <select id="machine-select" name="machine_id" required>
+                <option value="">--Please choose a machine--</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="part-select">Select Part</label>
+              <select id="part-select" name="machine_part_id" required>
+                <option value="">--Please choose a part--</option>
+              </select>
             </div>
             <div class="form-group">
               <label for="usage-purpose">Purpose</label>
@@ -72,6 +80,43 @@
       document.addEventListener('DOMContentLoaded', () => {
         const usageForm = document.getElementById('usage-form');
         const responseMessage = document.getElementById('usage-response-message');
+        const machineSelect = document.getElementById('machine-select');
+        const partSelect = document.getElementById('part-select');
+
+        const fetchMachines = async () => {
+            try {
+                const response = await fetch('/api/machines');
+                const machines = await response.json();
+                machineSelect.innerHTML = '<option value="">--Please choose a machine--</option>';
+                machines.forEach(machine => {
+                    const option = document.createElement('option');
+                    option.value = machine.id;
+                    option.textContent = machine.name;
+                    machineSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching machines:', error);
+            }
+        };
+
+        machineSelect.addEventListener('change', async () => {
+            const machineId = machineSelect.value;
+            partSelect.innerHTML = '<option value="">--Please choose a part--</option>';
+            if (!machineId) return;
+
+            try {
+                const response = await fetch(`/api/machines/${machineId}/parts`);
+                const parts = await response.json();
+                parts.forEach(part => {
+                    const option = document.createElement('option');
+                    option.value = part.id;
+                    option.textContent = part.part_name;
+                    partSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching parts:', error);
+            }
+        });
     
         usageForm.addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -79,7 +124,8 @@
     
           const formData = new FormData(usageForm);
           const usageData = {
-            order_item_id: formData.get('order_item_id'),
+            machine_id: formData.get('machine_id'),
+            machine_part_id: formData.get('machine_part_id'),
             purpose: formData.get('purpose'),
             quantity_used: formData.get('quantity_used'),
           };
@@ -98,6 +144,7 @@
             if (response.ok) {
               responseMessage.textContent = 'Usage recorded successfully!';
               usageForm.reset();
+              partSelect.innerHTML = '<option value="">--Please choose a part--</option>';
             } else {
               responseMessage.textContent = `Error: ${result.error}`;
             }
@@ -106,6 +153,9 @@
             responseMessage.textContent = 'An unexpected error occurred.';
           }
         });
+
+        // Fetch initial data on page load
+        fetchMachines();
       });
     </script>
 </body>

@@ -91,8 +91,10 @@
             <input type="text" id="purpose" name="purpose" required>
           </div>
           <div class="form-group">
-            <label for="machine">Machine</label>
-            <input type="text" id="machine" name="machine">
+            <label for="machine-select">Machine</label>
+            <select id="machine-select" name="machine_id" required>
+              <option value="">Select a machine</option>
+            </select>
           </div>
           <div class="form-group">
             <label for="customer_mobile_number">Customer Mobile</label>
@@ -114,96 +116,6 @@
         <div id="response-message"></div>
     </main>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const partsContainer = document.getElementById('parts-container');
-        const addPartBtn = document.getElementById('add-part-btn');
-        const orderForm = document.getElementById('order-form');
-        const responseMessage = document.getElementById('response-message');
-    
-        let partIndex = 0;
-    
-        const addPartRow = () => {
-          partIndex++;
-          const partRow = document.createElement('div');
-          partRow.classList.add('part-row');
-          partRow.innerHTML = `
-            <div class="form-group">
-              <label for="part_id_${partIndex}">Part ID</label>
-              <input type="number" id="part_id_${partIndex}" name="part_id" required>
-            </div>
-            <div class="form-group">
-              <label for="quantity_${partIndex}">Quantity</label>
-              <input type="number" id="quantity_${partIndex}" name="quantity" required>
-            </div>
-            <div class="form-group">
-              <label for="price_per_unit_${partIndex}">Price per Unit</label>
-              <input type="number" step="0.01" id="price_per_unit_${partIndex}" name="price_per_unit" required>
-            </div>
-            <button type="button" class="remove-part-btn">Remove</button>
-          `;
-          partsContainer.appendChild(partRow);
-        };
-    
-        addPartBtn.addEventListener('click', addPartRow);
-    
-        partsContainer.addEventListener('click', (e) => {
-          if (e.target.classList.contains('remove-part-btn')) {
-            e.target.parentElement.remove();
-          }
-        });
-    
-        orderForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          responseMessage.textContent = '';
-    
-          const formData = new FormData(orderForm);
-          const orderData = {
-            purpose: formData.get('purpose'),
-            machine: formData.get('machine'),
-            customer_mobile_number: formData.get('customer_mobile_number'),
-            source: formData.get('source'),
-            parts: [],
-          };
-    
-          const partRows = partsContainer.querySelectorAll('.part-row');
-          partRows.forEach(row => {
-            const part = {
-              part_id: row.querySelector('input[name="part_id"]').value,
-              quantity: row.querySelector('input[name="quantity"]').value,
-              price_per_unit: row.querySelector('input[name="price_per_unit"]').value,
-            };
-            orderData.parts.push(part);
-          });
-    
-          try {
-            const response = await fetch('/api/orders', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(orderData),
-            });
-    
-            const result = await response.json();
-    
-            if (response.ok) {
-              responseMessage.textContent = `Order created successfully! Order ID: ${result.orderId}`;
-              orderForm.reset();
-              partsContainer.innerHTML = '';
-              addPartRow();
-            } else {
-              responseMessage.textContent = `Error: ${result.error}`;
-            }
-          } catch (error) {
-            console.error('Error submitting order:', error);
-            responseMessage.textContent = 'An unexpected error occurred.';
-          }
-        });
-    
-        // Add one part row by default
-        addPartRow();
-      });
-    </script>
+    <script src="js/NewOrder.js"></script>
 </body>
 </html>

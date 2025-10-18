@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
@@ -101,9 +100,9 @@ app.post('/api/orders', async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // UPDATED: Storing machine_id in the orders table
-    const orderQuery = 'INSERT INTO orders (purpose, machine_id, customer_mobile_number, source) VALUES ($1, $2, $3, $4) RETURNING id';
-    const orderValues = [purpose, machine_id, customer_mobile_number, source];
+    // UPDATED: Storing machine_id and status in the orders table
+    const orderQuery = 'INSERT INTO orders (purpose, machine_id, customer_mobile_number, source, status) VALUES ($1, $2, $3, $4, $5) RETURNING id';
+    const orderValues = [purpose, machine_id, customer_mobile_number, source, 'ordered'];
     const orderResult = await client.query(orderQuery, orderValues);
     const orderId = orderResult.rows[0].id;
 
@@ -111,7 +110,7 @@ app.post('/api/orders', async (req, res) => {
       // VALIDATION: Check if the part belongs to the machine in the order
       const partCheckQuery = 'SELECT machine_id FROM machine_parts WHERE id = $1';
       const partCheckResult = await client.query(partCheckQuery, [part.machine_part_id]);
-      if (partCheckResult.rows.length === 0 || partCheckResult.rows[0].machine_id !== machine_id) {
+      if (partCheckResult.rows.length === 0 || partCheckResult.rows[0].machine_id !== parseInt(machine_id, 10)) {
         // If the part doesn't exist or doesn't belong to the correct machine, throw an error to trigger a rollback.
         throw new Error(`Part with id ${part.machine_part_id} does not belong to machine with id ${machine_id}.`);
       }
@@ -130,6 +129,62 @@ app.post('/api/orders', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   } finally {
     client.release();
+  }
+});
+
+app.put('/api/orders/:orderId/status', async (req, res) => {
+  const { orderId } = req.params;
+  const { status } = req.body;
+
+  if (!status) {
+    return res.status(400).json({ error: 'Status is required' });
+  }
+
+  try {
+    const query = 'UPDATE orders SET status = $1 WHERE id = $2 RETURNING *';
+    const result = await pool.query(query, [status, orderId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.json({ message: 'Order status updated successfully', order: result.rows[0] });
+  } catch (error) {
+    console.error('Error updating order status', error.stack);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/orders/history', async (req, res) => {
+  try {
+    const query = `
+      SELECT
+        o.id as order_id,
+        o.purpose,
+        o.customer_mobile_number,
+        o.source,
+        o.status,
+        o.created_at,
+        m.name as machine_name,
+        json_agg(
+          json_build_object(
+            'part_name', mp.part_name,
+            'quantity', oi.quantity,
+            'price_per_unit', oi.price_per_unit
+          )
+        ) as parts
+      FROM orders o
+      JOIN machines m ON o.machine_id = m.id
+      JOIN order_items oi ON o.id = oi.order_id
+      JOIN machine_parts mp ON oi.machine_part_id = mp.id
+      GROUP BY o.id, m.name
+      ORDER BY o.created_at DESC;
+    `;
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching order history', error.stack);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -164,20 +219,22 @@ app.get('/api/inventory', async (req, res) => {
           m.manufacturer,
           mp.description,
           COALESCE(SUM(oi.quantity), 0) AS total_ordered,
+          COALESCE(SUM(oi.quantity) FILTER (WHERE o.status = 'ordered'), 0) AS in_transit,
           (
               SELECT COALESCE(SUM(u.quantity_used), 0)
               FROM usage u
-              WHERE u.order_item_id IN (SELECT id FROM order_items WHERE machine_part_id = mp.id)
+              WHERE u.machine_part_id = mp.id
           ) AS total_used,
-          (COALESCE(SUM(oi.quantity), 0) - (
+          (COALESCE(SUM(oi.quantity) FILTER (WHERE o.status = 'delivered'), 0) - (
               SELECT COALESCE(SUM(u.quantity_used), 0)
               FROM usage u
-              WHERE u.order_item_id IN (SELECT id FROM order_items WHERE machine_part_id = mp.id)
+              WHERE u.machine_part_id = mp.id
           )) AS stock_on_hand
       FROM
           machine_parts mp
       JOIN machines m ON mp.machine_id = m.id
       LEFT JOIN order_items oi ON mp.id = oi.machine_part_id
+      LEFT JOIN orders o ON oi.order_id = o.id
       GROUP BY
           mp.id, m.name, m.manufacturer
       ORDER BY
@@ -192,49 +249,19 @@ app.get('/api/inventory', async (req, res) => {
 });
 
 app.post('/api/usage', async (req, res) => {
-  const { order_item_id, purpose, quantity_used } = req.body;
+  const { machine_id, machine_part_id, purpose, quantity_used } = req.body;
 
-  if (!order_item_id || !quantity_used) {
-    return res.status(400).json({ error: 'Order Item ID and Quantity Used are required' });
+  if (!machine_id || !machine_part_id || !quantity_used) {
+    return res.status(400).json({ error: 'Machine ID, Part ID and Quantity Used are required' });
   }
 
   try {
-    const query = 'INSERT INTO usage (order_item_id, purpose, quantity_used) VALUES ($1, $2, $3) RETURNING *';
-    const values = [order_item_id, purpose, quantity_used];
+    const query = 'INSERT INTO usage (machine_id, machine_part_id, purpose, quantity_used) VALUES ($1, $2, $3, $4) RETURNING *';
+    const values = [machine_id, machine_part_id, purpose, quantity_used];
     const result = await pool.query(query, values);
     res.status(201).json({ message: 'Usage recorded successfully', usage: result.rows[0] });
   } catch (error) {
     console.error('Error recording usage', error.stack);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-app.get('/api/order_items', async (req, res) => {
-  try {
-    const query = `
-      SELECT
-          oi.id,
-          oi.order_id,
-          mp.part_name,
-          m.name as machine_name,
-          oi.quantity AS total_quantity,
-          COALESCE(SUM(u.quantity_used), 0) AS used_quantity,
-          (oi.quantity - COALESCE(SUM(u.quantity_used), 0)) AS remaining_quantity
-      FROM
-          order_items oi
-      JOIN machine_parts mp ON oi.machine_part_id = mp.id
-      JOIN machines m ON mp.machine_id = m.id
-      LEFT JOIN
-          usage u ON oi.id = u.order_item_id
-      GROUP BY
-          oi.id, mp.part_name, m.name
-      ORDER BY
-          oi.order_id DESC, oi.id;
-    `;
-    const result = await pool.query(query);
-    res.json(result.rows);
-  } catch (error) {
-    console.error('Error getting order items', error.stack);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

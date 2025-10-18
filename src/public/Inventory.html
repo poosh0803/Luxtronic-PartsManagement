@@ -37,6 +37,10 @@
       #inventory-table th {
         background-color: #f2f2f2;
       }
+      .machine-group {
+        font-weight: bold;
+        background-color: #e9ecef;
+      }
     </style>
 </head>
 <body>
@@ -67,17 +71,35 @@
     </nav>
     <main class="main-content">
         <h1>Inventory Management</h1>
+
+        <div class="form-container">
+          <h2>Add a New Machine</h2>
+          <form id="add-machine-form">
+            <div class="form-group">
+              <label for="machine-name">Machine Name</label>
+              <input type="text" id="machine-name" name="name" required>
+            </div>
+            <div class="form-group">
+              <label for="machine-manufacturer">Manufacturer</label>
+              <input type="text" id="machine-manufacturer" name="manufacturer" required>
+            </div>
+            <button type="submit">Add Machine</button>
+          </form>
+          <div id="add-machine-response-message"></div>
+        </div>
         
         <div class="form-container">
           <h2>Add a New Part</h2>
           <form id="add-part-form">
             <div class="form-group">
-              <label for="part-name">Part Name</label>
-              <input type="text" id="part-name" name="name" required>
+                <label for="machine-select">Select Machine</label>
+                <select id="machine-select" name="machine_id" required>
+                    <option value="">--Please choose a machine--</option>
+                </select>
             </div>
             <div class="form-group">
-              <label for="part-manufacturer">Manufacturer</label>
-              <input type="text" id="part-manufacturer" name="manufacturer">
+              <label for="part-name">Part Name</label>
+              <input type="text" id="part-name" name="part_name" required>
             </div>
             <div class="form-group">
               <label for="part-description">Description</label>
@@ -93,11 +115,11 @@
           <table id="inventory-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Manufacturer</th>
+                <th>Part ID</th>
+                <th>Part Name</th>
                 <th>Description</th>
                 <th>Total Ordered</th>
+                <th>In Transit</th>
                 <th>Total Used</th>
                 <th>Stock on Hand</th>
               </tr>
@@ -112,9 +134,28 @@
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
+        const addMachineForm = document.getElementById('add-machine-form');
+        const addMachineResponseMessage = document.getElementById('add-machine-response-message');
         const addPartForm = document.getElementById('add-part-form');
-        const responseMessage = document.getElementById('add-part-response-message');
+        const addPartResponseMessage = document.getElementById('add-part-response-message');
         const inventoryTableBody = document.querySelector('#inventory-table tbody');
+        const machineSelect = document.getElementById('machine-select');
+
+        const fetchMachines = async () => {
+            try {
+                const response = await fetch('/api/machines');
+                const machines = await response.json();
+                machineSelect.innerHTML = '<option value="">--Please choose a machine--</option>';
+                machines.forEach(machine => {
+                    const option = document.createElement('option');
+                    option.value = machine.id;
+                    option.textContent = `${machine.name} (${machine.manufacturer})`;
+                    machineSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching machines:', error);
+            }
+        };
 
         const fetchInventory = async () => {
           try {
@@ -128,38 +169,82 @@
               return;
             }
 
-            inventory.forEach(part => {
-              const row = document.createElement('tr');
-              row.innerHTML = `
-                <td>${part.id}</td>
-                <td>${part.name}</td>
-                <td>${part.manufacturer}</td>
-                <td>${part.description}</td>
-                <td>${part.total_ordered}</td>
-                <td>${part.total_used}</td>
-                <td>${part.stock_on_hand}</td>
-              `;
-              inventoryTableBody.appendChild(row);
-            });
+            const groupedByMachine = inventory.reduce((acc, part) => {
+                const machineKey = `${part.machine_name} (${part.manufacturer})`;
+                if (!acc[machineKey]) {
+                    acc[machineKey] = [];
+                }
+                acc[machineKey].push(part);
+                return acc;
+            }, {});
+
+            for (const machine in groupedByMachine) {
+                const machineRow = document.createElement('tr');
+                machineRow.className = 'machine-group';
+                machineRow.innerHTML = `<td colspan="7">${machine}</td>`;
+                inventoryTableBody.appendChild(machineRow);
+
+                groupedByMachine[machine].forEach(part => {
+                  const row = document.createElement('tr');
+                  row.innerHTML = `
+                    <td>${part.id}</td>
+                    <td>${part.part_name}</td>
+                    <td>${part.description}</td>
+                    <td>${part.total_ordered}</td>
+                    <td>${part.in_transit}</td>
+                    <td>${part.total_used}</td>
+                    <td>${part.stock_on_hand}</td>
+                  `;
+                  inventoryTableBody.appendChild(row);
+                });
+            }
           } catch (error) {
             console.error('Error fetching inventory:', error);
             inventoryTableBody.innerHTML = '<tr><td colspan="7">Error loading inventory.</td></tr>';
           }
         };
 
+        addMachineForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            addMachineResponseMessage.textContent = '';
+            const formData = new FormData(addMachineForm);
+            const machineData = {
+                name: formData.get('name'),
+                manufacturer: formData.get('manufacturer'),
+            };
+
+            try {
+                const response = await fetch('/api/machines', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(machineData),
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    addMachineResponseMessage.textContent = 'Machine added successfully!';
+                    addMachineForm.reset();
+                    fetchMachines(); // Refresh machine list
+                } else {
+                    addMachineResponseMessage.textContent = `Error: ${result.error}`;
+                }
+            } catch (error) {
+                addMachineResponseMessage.textContent = 'An unexpected error occurred.';
+            }
+        });
+
         addPartForm.addEventListener('submit', async (e) => {
           e.preventDefault();
-          responseMessage.textContent = '';
+          addPartResponseMessage.textContent = '';
     
           const formData = new FormData(addPartForm);
           const partData = {
-            name: formData.get('name'),
-            manufacturer: formData.get('manufacturer'),
+            machine_id: parseInt(formData.get('machine_id'), 10),
+            part_name: formData.get('part_name'),
             description: formData.get('description'),
           };
     
           try {
-            const response = await fetch('/api/parts', {
+            const response = await fetch('/api/machine_parts', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -170,19 +255,20 @@
             const result = await response.json();
     
             if (response.ok) {
-              responseMessage.textContent = `Part created successfully! Part ID: ${result.part.id}`;
+              addPartResponseMessage.textContent = 'Part added successfully!';
               addPartForm.reset();
               fetchInventory(); // Refresh the inventory table
             } else {
-              responseMessage.textContent = `Error: ${result.error}`;
+              addPartResponseMessage.textContent = `Error: ${result.error}`;
             }
           } catch (error) {
             console.error('Error adding part:', error);
-            responseMessage.textContent = 'An unexpected error occurred.';
+            addPartResponseMessage.textContent = 'An unexpected error occurred.';
           }
         });
 
-        // Fetch inventory on page load
+        // Fetch initial data on page load
+        fetchMachines();
         fetchInventory();
       });
     </script>
