@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
   const machineSelect = document.getElementById('machine-select');
   const partsContainer = document.getElementById('parts-container');
@@ -56,19 +55,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     partRow.innerHTML = `
-      <div class="form-group">
+      <div class="form-group part-name-group">
         <label for="part_id_${partIndex}">Part</label>
         <select id="part_id_${partIndex}" name="part_id" class="part-select" required>
           ${options}
         </select>
       </div>
-      <div class="form-group">
-        <label for="quantity_${partIndex}">Quantity</label>
-        <input type="number" id="quantity_${partIndex}" name="quantity" required>
-      </div>
-      <div class="form-group">
-        <label for="price_per_unit_${partIndex}">Price per Unit</label>
-        <input type="number" step="0.01" id="price_per_unit_${partIndex}" name="price_per_unit" required>
+      <div class="part-details-group">
+        <div class="form-group">
+          <label for="quantity_${partIndex}">Quantity</label>
+          <input type="number" id="quantity_${partIndex}" name="quantity" required>
+        </div>
+        <div class="form-group">
+          <label for="price_per_unit_${partIndex}">Price per Unit</label>
+          <input type="number" step="0.01" id="price_per_unit_${partIndex}" name="price_per_unit" required>
+        </div>
       </div>
       <button type="button" class="remove-part-btn">Remove</button>
     `;

@@ -921,3 +921,132 @@ footer {
   text-align: center;
   margin-bottom: 20px;
 }
+
+/* -------------------------------------- */
+/*           IMPROVED STYLES             */
+/* -------------------------------------- */
+
+/* General Form Styling */
+.form-container, #order-form {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  padding: 2em;
+  margin-bottom: 2em;
+}
+
+.form-group {
+  margin-bottom: 1.5em;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5em;
+  color: #333;
+  font-weight: 600;
+}
+
+input[type="text"], 
+input[type="number"], 
+input[type="email"], 
+select, 
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  -webkit-appearance: none; /* Removes default styling on iOS */
+  -moz-appearance: none; /* Removes default styling on Firefox */
+  appearance: none; /* Removes default styling */
+  background-color: #fff;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5z%22%20fill%3D%22%23555%22/%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 1.2em;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #dda84b;
+  box-shadow: 0 0 0 3px rgba(221, 168, 75, 0.25);
+  outline: none;
+}
+
+/* Button Styling */
+button[type="submit"], .action-btn, #add-part-btn {
+  background-color: #dda84b;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover, .action-btn:hover, #add-part-btn:hover {
+  background-color: #c7943a;
+}
+
+.remove-part-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.remove-part-btn:hover {
+    background-color: #c82333;
+}
+
+/* Table Styling */
+#inventory-table, #orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+#inventory-table th, #orders-table th {
+  background-color: #dda84b;
+  color: white;
+  padding: 12px 15px;
+  text-align: left;
+}
+
+#inventory-table td, #orders-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+#inventory-table tbody tr:nth-child(even), #orders-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#inventory-table tbody tr:hover, #orders-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.machine-group td {
+    background-color: #f0e6d2 !important;
+    font-weight: bold;
+}
+
+.part-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  margin-bottom: 10px;
+}
+.part-details-group {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+.part-name-group {
+  flex: 2;
+}
